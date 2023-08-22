@@ -2,6 +2,16 @@
 
 This repository contains three Python scripts that use OpenCV to adjust camera frames.
 
+## Required Libraries
+*OpenCV
+*Numpy
+*Tkinter
+*PIL
+
+mirror.py: only needs OpenCV
+rotate.py: only needs OpenCV and Numpy
+
+
 **mirror.py**:
 This script opens the default webcam and displays the video feed in an OpenCV window. It allows mirroring the frame horizontally on keypress 'm'.
 
