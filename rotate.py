@@ -5,7 +5,7 @@ cam = cv2.VideoCapture(0)
 
 cam.set(cv2.CAP_PROP_FPS, 30)
 key_num = 0
-
+mirror = False
 
 while True:
 	if not cam.isOpened():
@@ -15,7 +15,10 @@ while True:
 	# read frame
 	ret, frame = cam.read()
 
-	#frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+	if mirror:
+		frame = cv2.flip(frame, 1)
+
+	#frame = cv2.rotate(frame, key_num)
 	frame = np.rot90(frame, key_num)
 	
 	cv2.imshow('Video', frame)
@@ -24,6 +27,9 @@ while True:
 		key_num=key_num+1
 		if key_num >= 4:
 			key_num = 0
+			
+	if cv2.waitKey(1) == ord('m'):
+		mirror = not mirror
 
 	if cv2.waitKey(1) & 0xFF == ord('q'):
 		break
