@@ -11,7 +11,5 @@ This script opens the default webcam and displays the video feed in an OpenCV wi
 **rotateGUI.py**: 
 This script creates a camera app GUI using Tkinter where the user can interact with buttons to rotate the frame. The frame is displayed in a Tkinter label. 
 
-* and change the resolution*
-
 
 
