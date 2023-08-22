@@ -9,6 +9,7 @@ This repository contains three Python scripts that use OpenCV to adjust camera f
 * PIL
 
 mirror.py: only needs OpenCV
+
 rotate.py: only needs OpenCV and Numpy
 
 
