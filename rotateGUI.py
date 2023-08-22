@@ -62,8 +62,6 @@ label_widget.pack(fill=BOTH, expand=YES)
 # Declare global variable
 key_num = 0
 
-
-
 # Open the Camera
 open_camera()
 
