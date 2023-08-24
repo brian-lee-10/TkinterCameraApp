@@ -9,7 +9,6 @@ cam.set(cv2.CAP_PROP_FPS, 30)
 
 # Declare necessary variables
 key_num = 0
-mirror = False
 
 while True:
 	# Check to see if the camera is open
@@ -20,9 +19,6 @@ while True:
 	# read frame
 	ret, frame = cam.read()
 
-	# Flip horizontally if mirror is True
-	if mirror:
-		frame = cv2.flip(frame, 1)
 
 	# Rotate frame by key_num increments
 	frame = np.rot90(frame, key_num)
@@ -34,12 +30,9 @@ while True:
 	# Increment rotation angle on 'r' keypress
 	if cv2.waitKey(1) == ord('r'):
 		key_num=key_num+1
+		print(key_num)
 		if key_num >= 4:
 			key_num = 0
-			
-	# Toggle mirroring on 'm' keypress
-	if cv2.waitKey(1) == ord('m'):
-		mirror = not mirror
 
 	# Break loop on 'q' keypress
 	if cv2.waitKey(1) & 0xFF == ord('q'):
