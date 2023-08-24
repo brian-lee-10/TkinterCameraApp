@@ -51,11 +51,18 @@ def gui_update():
       
     label_widget.after(10, gui_update)
 
+def resize_window():
+    if key_num == 0 or key_num == 2:
+        root.geometry(f"{width}x{height}")
+    if key_num == 1 or key_num ==3:
+        root.geometry(f"{height}x{width}")
+
 def rotate_cam():
     global key_num
     key_num = key_num+1
     if key_num >= 4:
         key_num = 0
+    resize_window()
 
 def rotate_button():
     button1 = Button(root, text="Rotate Camera", command=rotate_cam)
@@ -63,36 +70,37 @@ def rotate_button():
     button1.config(font=("Helvetica", 16))
 
 def set_res_800():
-    global current_res
+    global current_res, width, height
     current_res = (800, 600)
-    width, height = current_res
-  
+    width, height = current_res  
+
     cam.set(cv2.CAP_PROP_FRAME_WIDTH, width)
     cam.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
-    print(current_res)
+    resize_window()
 
 def set_res_640():
-    global current_res
+    global current_res, width, height
     current_res = (640, 480)
     width, height = current_res
-  
+
     cam.set(cv2.CAP_PROP_FRAME_WIDTH, width)
     cam.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
-    print(current_res)
+    resize_window()
 
 def set_res_320():
-    global current_res 
+    global current_res, width, height
     current_res = (320, 240)
     width, height = current_res
   
     cam.set(cv2.CAP_PROP_FRAME_WIDTH, width)
     cam.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
-    print(current_res)
+    resize_window()
 
 # --- MAIN --- #
 # Create tk app
 root = Tk()
 root.title("Webcam")
+root.geometry(f"{width}x{height}")
 
 # quit app whenever "Escape" is pressed
 root.bind('<Escape>', lambda e: root.quit())
