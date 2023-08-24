@@ -30,7 +30,6 @@ while True:
 	# Increment rotation angle on 'r' keypress
 	if cv2.waitKey(1) == ord('r'):
 		key_num=key_num+1
-		print(key_num)
 		if key_num >= 4:
 			key_num = 0
 
