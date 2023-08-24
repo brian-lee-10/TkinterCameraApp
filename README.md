@@ -18,6 +18,7 @@ rotate.py: only needs OpenCV and Numpy
 This script opens the default webcam and displays the video feed in an OpenCV window. It allows mirroring the frame horizontally on keypress 'm'.
 
 ### rotate.py 
+
 This script opens the default webcam and displays the video feed in an OpenCV window. It allows rotating the frame 90 degrees clockwise on keypress 'r'. Rotations are done incrementally.
 
 ### rotateGUI.py
