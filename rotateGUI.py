@@ -6,7 +6,7 @@ import threading
 from queue import Queue
 
 # --- VARIABLES --- #
-current_res = (800, 600)
+current_res = (320, 240)
 width, height = current_res
 key_num = 0
 
@@ -16,16 +16,11 @@ cam.set(cv2.CAP_PROP_FRAME_WIDTH, width)
 cam.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
 # Create queue
-frame_queue = Queue()
+frame_queue = Queue(maxsize=1)
 
 # --- FUNCTIONS --- # 
 # Camera thread
 def camera_thread():
-    '''global current_res
-    width, height = current_res
-    
-    cam.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-    cam.set(cv2.CAP_PROP_FRAME_HEIGHT, height)'''
     while True:
         ret, frame = cam.read() 
         frame = np.rot90(frame, key_num)
@@ -62,39 +57,25 @@ def rotate_cam():
     key_num = key_num+1
     if key_num >= 4:
         key_num = 0
-    resize_window()
+    resize_window()    
 
-def rotate_button():
-    button1 = Button(root, text="Rotate Camera", command=rotate_cam)
-    button1.pack()
-    button1.config(font=("Helvetica", 16))
-
-def set_res_800():
-    global current_res, width, height
-    current_res = (800, 600)
-    width, height = current_res  
-
-    cam.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-    cam.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
-    resize_window()
-
-def set_res_640():
-    global current_res, width, height
-    current_res = (640, 480)
-    width, height = current_res
-
+def set_res(res):
+    global width, height
+    width, height = res
+  
     cam.set(cv2.CAP_PROP_FRAME_WIDTH, width)
     cam.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
     resize_window()
 
 def set_res_320():
-    global current_res, width, height
-    current_res = (320, 240)
-    width, height = current_res
-  
-    cam.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-    cam.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
-    resize_window()
+    set_res((320, 240))
+
+def set_res_640():
+    set_res((640, 480))
+
+def set_res_800():
+    set_res((800,600))
+
 
 # --- MAIN --- #
 # Create tk app
@@ -105,7 +86,9 @@ root.geometry(f"{width}x{height}")
 # quit app whenever "Escape" is pressed
 root.bind('<Escape>', lambda e: root.quit())
 
-rotate_button()
+button1 = Button(root, text="Rotate Camera", command=rotate_cam)
+button1.pack()
+button1.config(font=("Helvetica", 16))
 
 # Create a label and display it on app
 label_widget = Label(root)
@@ -114,9 +97,9 @@ label_widget.pack(fill=BOTH, expand=YES)
 # --- Menu --- #
 menu_bar = Menu(root)
 file_menu = Menu(menu_bar, tearoff=0)
-file_menu.add_command(label="800x600", command=set_res_800)
-file_menu.add_command(label="640x480", command=set_res_640)
 file_menu.add_command(label="320x240", command=set_res_320)
+file_menu.add_command(label="640x480", command=set_res_640)
+file_menu.add_command(label="800x600", command=set_res_800)
 
 menu_bar.add_cascade(label="File", menu=file_menu)
 root.config(menu=menu_bar)
