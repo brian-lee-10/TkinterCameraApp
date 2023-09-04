@@ -6,38 +6,40 @@ import cv2
 import threading 
 
 # --- VARIABLES --- #
-res = (320, 240)
-available_cam = []
-camera_index = 0
-camera_num = 0
-key_num = 0
+res = (320, 240)  # Initial resolution
+available_cam = []  # List of available cameras
+camera_index = 0  # Index of the currently selected camera
+camera_num = 0  # Number of available cameras
+key_num = 0  # Key number for rotation
 
 # Initialize Camera
 cam = cv2.VideoCapture(camera_index)
 cam.set(cv2.CAP_PROP_FRAME_WIDTH, res[0])
 cam.set(cv2.CAP_PROP_FRAME_HEIGHT, res[1])
 
-# Create queue
+# Create a queue to store frames
 frame_queue = Queue(maxsize=1)
 
 # --- FUNCTIONS --- # 
+
 # Camera thread
 def camera_thread():
     while True:
         ret, frame = cam.read() 
 
-        # Check if frame is loaded
+        # Check if the frame is loaded
         if ret:
             frame = np.rot90(frame, key_num)
             
-            # Add frame to queue
+            # Add the frame to the queue
             frame_queue.put(frame)
 
-# GUI thread
+# GUI update function
 def gui_update():  
     if not frame_queue.empty():
         frame = frame_queue.get()
         
+        # Convert the OpenCV frame to a Tkinter image
         opencvImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         img = Image.fromarray(opencvImage)
         imgtk = ImageTk.PhotoImage(image=img) 
@@ -47,10 +49,11 @@ def gui_update():
       
     label_widget.after(10, gui_update)
 
+# Function to list available cameras
 def list_cams():
     is_working = True
     index = 0
-    global available_cam, frame
+    global available_cam
     while is_working:
         camera = cv2.VideoCapture(index)
         if not camera.isOpened():
@@ -59,15 +62,17 @@ def list_cams():
             is_reading, frame = camera.read()
             if is_reading:
                 available_cam.append(index)
-        index +=1
+        index += 1
     camera.release()
 
+# Function to resize the window based on the rotation
 def resize_window():
     if key_num == 0 or key_num == 2:
         root.geometry(f"{res[0]}x{res[1]}")
-    if key_num == 1 or key_num ==3:
+    if key_num == 1 or key_num == 3:
         root.geometry(f"{res[1]}x{res[0]}")  
 
+# Function to set the camera resolution
 def set_res(new_res):
     global res
     res = new_res
@@ -76,13 +81,15 @@ def set_res(new_res):
     cam.set(cv2.CAP_PROP_FRAME_HEIGHT, res[1])
     resize_window()
 
+# Function to rotate the camera view
 def rotate_cam():
     global key_num
-    key_num = key_num+1
+    key_num = key_num + 1
     if key_num >= 4:
         key_num = 0
     resize_window()  
 
+# Function to cycle through available cameras
 def cycle_cameras(num):
     global camera_index, cam, res
 
@@ -90,8 +97,8 @@ def cycle_cameras(num):
     cam.release()
     cam = cv2.VideoCapture(camera_index)
     set_res(res)
-    
 
+# Functions to set specific resolutions
 def set_res_320():
     set_res((320, 240))
 
@@ -99,8 +106,9 @@ def set_res_640():
     set_res((640, 480))
 
 def set_res_800():
-    set_res((800,600))
+    set_res((800, 600))
 
+# Function to exit the application
 def exit_app():
     root.quit()
     cam.release()
@@ -115,7 +123,7 @@ camera_num = len(available_cam)
 camera_thread = threading.Thread(target=camera_thread)
 camera_thread.start()
 
-# Create tk app
+# Create Tkinter application
 root = Tk()
 root.title("Webcam")
 root.geometry(f"{res[0]}x{res[1]}")
