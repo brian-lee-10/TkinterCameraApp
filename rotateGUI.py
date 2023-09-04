@@ -1,19 +1,21 @@
 from tkinter import *
 from PIL import Image, ImageTk
+from queue import Queue
 import numpy as np
 import cv2
 import threading 
-from queue import Queue
 
 # --- VARIABLES --- #
-current_res = (320, 240)
-width, height = current_res
+res = (320, 240)
+available_cam = []
+camera_index = 0
+camera_num = 0
 key_num = 0
 
 # Initialize Camera
-cam = cv2.VideoCapture(0)
-cam.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-cam.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+cam = cv2.VideoCapture(camera_index)
+cam.set(cv2.CAP_PROP_FRAME_WIDTH, res[0])
+cam.set(cv2.CAP_PROP_FRAME_HEIGHT, res[1])
 
 # Create queue
 frame_queue = Queue(maxsize=1)
@@ -23,21 +25,20 @@ frame_queue = Queue(maxsize=1)
 def camera_thread():
     while True:
         ret, frame = cam.read() 
-        frame = np.rot90(frame, key_num)
-        
-        if ret:
-            # Add frame to queue
-            frame_queue.put(frame) 
 
-camera_thread = threading.Thread(target=camera_thread)
-camera_thread.start()
+        # Check if frame is loaded
+        if ret:
+            frame = np.rot90(frame, key_num)
+            
+            # Add frame to queue
+            frame_queue.put(frame)
 
 # GUI thread
 def gui_update():  
     if not frame_queue.empty():
         frame = frame_queue.get()
         
-        opencvImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+        opencvImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         img = Image.fromarray(opencvImage)
         imgtk = ImageTk.PhotoImage(image=img) 
         
@@ -46,26 +47,55 @@ def gui_update():
       
     label_widget.after(10, gui_update)
 
+def list_cams():
+    is_working = True
+    index = 0
+    global available_cam, frame
+    while is_working:
+        camera = cv2.VideoCapture(index)
+        if not camera.isOpened():
+            is_working = False
+        else:
+            is_reading, frame = camera.read()
+            if is_reading:
+                available_cam.append(index)
+        index +=1
+    camera.release()
+
 def resize_window():
     if key_num == 0 or key_num == 2:
-        root.geometry(f"{width}x{height}")
+        root.geometry(f"{res[0]}x{res[1]}")
     if key_num == 1 or key_num ==3:
-        root.geometry(f"{height}x{width}")
+        root.geometry(f"{res[1]}x{res[0]}")  
+
+def set_res(new_res):
+    global res
+    res = new_res
+  
+    cam.set(cv2.CAP_PROP_FRAME_WIDTH, res[0])
+    cam.set(cv2.CAP_PROP_FRAME_HEIGHT, res[1])
+    resize_window()
 
 def rotate_cam():
     global key_num
     key_num = key_num+1
     if key_num >= 4:
         key_num = 0
-    resize_window()    
+    resize_window()  
 
-def set_res(res):
-    global width, height
-    width, height = res
-  
-    cam.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-    cam.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
-    resize_window()
+def cycle_cameras(num):
+    global camera_index, cam, res
+    '''
+    camera_index += 1
+    
+    if camera_index >= 2: 
+        camera_index = 0
+    '''
+    camera_index = num
+    cam.release()
+    cam = cv2.VideoCapture(camera_index)
+    set_res(res)
+    
 
 def set_res_320():
     set_res((320, 240))
@@ -76,21 +106,37 @@ def set_res_640():
 def set_res_800():
     set_res((800,600))
 
+def exit_app():
+    root.quit()
+    cam.release()
+    camera_thread.join()
+    root.destroy()
 
-# --- MAIN --- #
+# --- Find Number of Cameras --- #
+list_cams()
+camera_num = len(available_cam)
+
+# --- Start Camera Thread --- #
+camera_thread = threading.Thread(target=camera_thread)
+camera_thread.start()
+
 # Create tk app
 root = Tk()
 root.title("Webcam")
-root.geometry(f"{width}x{height}")
+root.geometry(f"{res[0]}x{res[1]}")
+root.bind('<Escape>', lambda e: exit_app()) 
 
-# quit app whenever "Escape" is pressed
-root.bind('<Escape>', lambda e: root.quit())
-
-button1 = Button(root, text="Rotate Camera", command=rotate_cam)
+# --- Rotate Button --- #
+button1 = Button(root, text="Rotate", command=rotate_cam)
 button1.pack()
 button1.config(font=("Helvetica", 16))
 
-# Create a label and display it on app
+# --- Exit Button --- # 
+exit_button = Button(root, text="Exit App", command=exit_app)
+exit_button.pack()
+exit_button.config(font=("Helvetica", 16))
+
+# --- Label --- #
 label_widget = Label(root)
 label_widget.pack(fill=BOTH, expand=YES)
 
@@ -101,9 +147,15 @@ file_menu.add_command(label="320x240", command=set_res_320)
 file_menu.add_command(label="640x480", command=set_res_640)
 file_menu.add_command(label="800x600", command=set_res_800)
 
-menu_bar.add_cascade(label="File", menu=file_menu)
+camera_menu = Menu(menu_bar, tearoff=0)
+for i in range(camera_num):
+    item_label = f"Camera {i + 1}"
+    camera_menu.add_command(label=item_label, command=lambda i=i: cycle_cameras(i))
+    # camera_menu.add_command(label=item_label, command=cycle_cameras)
+
+menu_bar.add_cascade(label="Resolution", menu=file_menu)
+menu_bar.add_cascade(label="Cameras", menu=camera_menu)
 root.config(menu=menu_bar)
 
 gui_update() 
 root.mainloop()
-cam.release()
