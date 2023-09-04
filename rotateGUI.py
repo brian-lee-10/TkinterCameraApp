@@ -85,12 +85,7 @@ def rotate_cam():
 
 def cycle_cameras(num):
     global camera_index, cam, res
-    '''
-    camera_index += 1
-    
-    if camera_index >= 2: 
-        camera_index = 0
-    '''
+
     camera_index = num
     cam.release()
     cam = cv2.VideoCapture(camera_index)
@@ -151,7 +146,6 @@ camera_menu = Menu(menu_bar, tearoff=0)
 for i in range(camera_num):
     item_label = f"Camera {i + 1}"
     camera_menu.add_command(label=item_label, command=lambda i=i: cycle_cameras(i))
-    # camera_menu.add_command(label=item_label, command=cycle_cameras)
 
 menu_bar.add_cascade(label="Resolution", menu=file_menu)
 menu_bar.add_cascade(label="Cameras", menu=camera_menu)
