@@ -25,7 +25,7 @@ This script opens the default webcam and displays the video feed in an OpenCV wi
 
 ### rotateGUI.py
 
-Rhis program displays a live video feed from a webcam in a graphical user interface (GUI) and allow the user to interact with the video.
+This program displays a live video feed from a webcam in a graphical user interface (GUI) and allow the user to interact with the video.
 
 Specifically, it enables:
 
