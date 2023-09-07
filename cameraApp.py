@@ -4,7 +4,6 @@ from queue import Queue
 import numpy as np
 import cv2
 import threading 
-import time
 
 # --- VARIABLES --- #
 cur_res = (320, 240)  # Initial resolution
