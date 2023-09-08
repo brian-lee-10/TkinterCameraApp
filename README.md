@@ -9,7 +9,7 @@ This is a simple webcam application built with Tkinter and OpenCV in Python.
 * PIL
 
 ## Usage
-* Run "python cameraApp.py" to start the application
+* Run "python cameraApp.py" to start the application on the command line
 * Click the "Rotate" button to rotate the video feed by 90 degrees
 * Use the "Resolution" menu to select from preset resolutions
 * Switch to different webcams using the "Cameras" menu
